@@ -397,7 +397,7 @@ def get_participant_teams_for_challenge(request, challenge_pk):
 def add_participant_team_to_challenge(
     request, challenge_pk, participant_team_pk
 ):
-
+        
     try:
         challenge = Challenge.objects.get(pk=challenge_pk)
     except Challenge.DoesNotExist:
@@ -416,13 +416,38 @@ def add_participant_team_to_challenge(
             "error": "Sorry, cannot accept participant team since challenge is not active."
         }
         return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+    
 
     try:
         participant_team = ParticipantTeam.objects.get(pk=participant_team_pk)
     except ParticipantTeam.DoesNotExist:
         response_data = {"error": "ParticipantTeam does not exist"}
         return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
-
+    """Check for challenges and if profile is fully complete"""
+    try:
+        profile = Profile.objects.get(pk=profile_pk)
+    except Profile.DoesNotExist:
+        response_data = {"error": "Profile does not exist"}
+        return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+    
+    """You can make all these if statements one, but that will be very tedious""""
+    if(profile.contact_number__isnull=True and profile.contact_number is None):
+        challenge.is_users_profile_complete = False
+    if(len(profile.affiliation)==0):
+        challenge.is_users_profile_complete = False
+    if(profile.receive_participated_challenge_updates==True):#I assume that this is optional for the user
+        challenge.is_users_profile_complete = False
+    if(profile.recieve_newsletter==True):#I assume that this is optional for the user
+        challenge.is_users_profile_complete = False
+    if(profile.github_url__isnull=True and profile.github_url is None):
+        challenge.is_users_profile_complete = False  
+    if(profile.google_scholar_url__isnull=True and profile.google_scholar_url is None):
+        challenge.is_users_profile_complete = False
+    if(profile.linkedin_url__isnull=True and profile.linkedin_url is None):
+        challenge.is_users_profile_complete = False
+    
+    
+    
     # Check if user is banned
     if len(challenge.banned_email_ids) > 0:
         for participant_email in participant_team.get_all_participants_email():
