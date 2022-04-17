@@ -62,6 +62,9 @@ class Challenge(TimeStampedModel):
     published = models.BooleanField(
         default=False, verbose_name="Publicly Available", db_index=True
     )
+    """Boolean Flag for allowing participants"""
+    is_users_profile_complete=models.BooleanField(default=False)
+    
     submission_time_limit = models.PositiveIntegerField(default=86400)
     is_registration_open = models.BooleanField(default=True)
     enable_forum = models.BooleanField(default=True)
